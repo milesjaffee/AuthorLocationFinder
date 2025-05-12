@@ -6,14 +6,18 @@ from collections import defaultdict
 import time
 import math
 import re
+import argparse
+import os
+import sys
 
 WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
 geolocator = Nominatim(user_agent="author_mapper")
 
 #gets a list of unique authors from the goodreads csv. filter out to-read list 
-def get_unique_authors(csv_path):
+def get_unique_authors(csv_path, toread_enabled):
     df = pd.read_csv(csv_path)
-    df = df[df['Exclusive Shelf'] != 'to-read']
+    if (not toread_enabled):
+        df = df[df['Exclusive Shelf'] != 'to-read']
     authors = df['Author'].dropna().unique()
     return list(set(authors))
 
@@ -195,7 +199,33 @@ authors = [
     "Haruki Murakami"
 ]
 
-# main function to run!
-if __name__ == "__main__":
-    authors = get_unique_authors("goodreads_library_export.csv")
+def main():
+    parser = argparse.ArgumentParser(description="Process a Goodreads export file to get a map (html file) with authors' birthplaces.")
+    parser.add_argument(
+        '-f', '--file',
+        type=str,
+        default='goodreads_library_export.csv',
+        help='Path to the Goodreads CSV export file (default: goodreads_library_export.csv)'
+    )
+    parser.add_argument(
+        '-t', '--toread',
+        action='store_true',
+        help='Count authors in the to-read list?'
+    )
+
+    args = parser.parse_args()
+
+    # Check if file exists
+    if not os.path.exists(args.file):
+        print(f"Error: File '{args.file}' not found.")
+        sys.exit(1)
+
+    toread_enabled = args.toread  # True if -t is used
+
+    authors = get_unique_authors(args.file, toread_enabled)
     create_author_map(authors)
+
+
+# Only run if this script is executed directly
+if __name__ == "__main__":
+    main()
