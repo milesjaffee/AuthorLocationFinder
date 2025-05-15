@@ -11,7 +11,7 @@ import os
 import sys
 
 WIKIDATA_SPARQL_URL = "https://query.wikidata.org/sparql"
-geolocator = Nominatim(user_agent="author_mapper")
+geolocator = Nominatim(user_agent="milesjaffee/AuthorLocationFinder")
 
 #gets a list of unique authors from the goodreads csv. filter out to-read list 
 def get_unique_authors(csv_path, toread_enabled):
@@ -96,7 +96,7 @@ def get_birthplace_coords(author_name):
         """
 
         headers = {"Accept": "application/sparql-results+json",
-                   "User-Agent": "goodreads author mapper tool, mej327@lehigh.edu"
+                   "User-Agent": "milesjaffee/AuthorLocationFinder"
                    }
         response = requests.get(
             "https://query.wikidata.org/sparql",
